@@ -1,0 +1,29 @@
+{
+  "name": "codepen-live-board",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev server.ts",
+    "web": "parcel watch src/index.html --out-dir dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.16.0",
+    "@types/node-fetch": "^2.1.2",
+    "@types/ws": "^6.0.1",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "node-fetch": "^2.2.0",
+    "parcel-bundler": "^1.10.3",
+    "ts-node": "^7.0.1",
+    "ts-node-dev": "^1.0.0-pre.30",
+    "typescript": "^3.1.3",
+    "vue": "^2.5.17",
+    "ws": "^6.1.0"
+  },
+  "devDependencies": {}
+}
