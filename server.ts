@@ -8,12 +8,12 @@ import * as bodyParser from 'body-parser';
 import { Participant } from './common/Participant';
 
 const PARTICIPANTS: Participant[] = [
-  {
-    penUrl: 'https://codepen.io/gerkirill/pen/rQWYGo',
-    fullpageUrl: 'https://s.codepen.io/gerkirill/fullpage/rQWYGo',
-    name: 'Кирилл',
-    changeCount: 0
-  }
+  // {
+  //   penUrl: 'https://codepen.io/gerkirill/pen/rQWYGo',
+  //   fullpageUrl: 'https://s.codepen.io/gerkirill/fullpage/rQWYGo',
+  //   name: 'Кирилл',
+  //   changeCount: 0
+  // }
 ];
 
 const app = express();
