@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "predev": "run-s clean",
     "dev": "run-p server web:watch",
     "server": "ts-node-dev server.ts",
     "web:watch": "parcel watch www/src/index.html --out-dir www/dist",
