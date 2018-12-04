@@ -1,31 +1,44 @@
-let participants = [];
+import { Participant } from '../../common/Participant';
+
+let participants: Participant[] = [];
+
+// initially load all existing  participants from the API
 (async () => {
   const resp = await fetch('/api/participants');
   participants = await resp.json();
   renderParticipants(participants);
 })();
 
-function url(s) {
-  var l = window.location;
-  return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != 80) && (l.port != 443)) ? ":" + l.port : "") + l.pathname + s;
-}
-const WS_URL = url('');
+// start listening to the server events using websocket
+const WS_URL = getWsUrl(window.location);
+startWsClient(WS_URL);
 
-function start(websocketServerLocation: string) {
+// add registration form submit handler
+document
+  .querySelector('.registration-form')
+  .addEventListener('submit', formSubmit);
+
+
+
+// returns ws:// or wss:// URL corresponding to the given http:// or https:// one
+function getWsUrl(currentLocation: Location) {
+  const l = currentLocation;
+  return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != '80') && (l.port != '443')) ? ":" + l.port : "") + l.pathname;
+}
+
+function startWsClient(websocketServerLocation: string) {
   const ws = new WebSocket(websocketServerLocation);
   ws.onmessage = (event) => {
     participants = updateParticipants(participants, JSON.parse(event.data));
     renderParticipants(participants);
   };
   ws.onclose = () => {
-    setTimeout(() => start(websocketServerLocation), 5000);
+    // re-start with a delay
+    setTimeout(() => startWsClient(websocketServerLocation), 5000);
   };
 }
 
-start(WS_URL);
-
-
-function updateParticipants(participants, participant) {
+function updateParticipants(participants: Participant[], participant: Participant) {
   const idx = participants.findIndex( ({ penUrl }) => penUrl === participant.penUrl)
   if (idx === -1) {
     return [...participants, participant];
@@ -36,10 +49,10 @@ function updateParticipants(participants, participant) {
   }
 }
 
-function renderParticipants(participants) {
+function renderParticipants(participants: Participant[]) {
   console.log(participants);
   const container = document.querySelector('#frames-grid');
-  const blocks = Array.from(document.querySelectorAll('.participant'));
+  const blocks: HTMLElement[] = Array.from(document.querySelectorAll('.participant'));
   participants.forEach(p => {
     const block = blocks.find(block => block.id === p.penUrl);
     const newBlock = htmlToElement(`
@@ -49,7 +62,7 @@ function renderParticipants(participants) {
       </div>`
       );
     if (block) {
-      // TODO: don't touch if hash is the same
+      // only replace block with the new version if the hash has changed
       if (block.dataset.hash !== p.lastHash) {
         container.insertBefore(newBlock, block);
         container.removeChild(block);
@@ -60,44 +73,46 @@ function renderParticipants(participants) {
   })
 }
 
-function htmlToElement(html) {
+function htmlToElement(html: string): HTMLElement {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
-  return template.content.firstChild;
+  return <HTMLElement>template.content.firstChild;
 }
 
-document
-  .querySelector('.registration-form')
-  .addEventListener('submit', formSubmit);
+interface RegistrationForm extends HTMLFormElement {
+  participantName: HTMLInputElement,
+  penUrl: HTMLInputElement
+}
 
-function formSubmit(e) {
-  e.preventDefault();
-  const errMsgElt = document.querySelector('.registration-error');
-  const okMsgElt = document.querySelector('.registration-ok')
-  const form = e.target;
-  fetch('/register', {
+async function sendRegistrationRequest(participantName: string, penUrl: string) {
+  const resp = await fetch('/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     },
     body: JSON.stringify({
-      participantName: form.participantName.value,
-      penUrl: form.penUrl.value
+      participantName: participantName,
+      penUrl: penUrl
     })
-  })
-  .then(resp => resp.json())
-  .then((json) => {
-    if (json.error) {
-      errMsgElt.style.display = 'initial';
-      okMsgElt.style.display = 'none';
-      errMsgElt.innerHTML = json.error;
-      // document.querySelector('.registration-ok').style.display = 'initial';
-    } else {
-      form.reset();
-      errMsgElt.style.display = 'none';
-      okMsgElt.style.display = 'initial';
-    }
   });
+  return resp.json();
+}
+
+async function formSubmit(e: Event) {
+  e.preventDefault();
+  const errMsgElt = <HTMLElement>document.querySelector('.registration-error');
+  const okMsgElt = <HTMLElement>document.querySelector('.registration-ok')
+  const form: RegistrationForm = <RegistrationForm><unknown>e.target;
+  const json = await sendRegistrationRequest(form.participantName.value, form.penUrl.value);
+  if (json.error) {
+    errMsgElt.style.display = 'initial';
+    okMsgElt.style.display = 'none';
+    errMsgElt.innerHTML = json.error;
+  } else {
+    form.reset();
+    errMsgElt.style.display = 'none';
+    okMsgElt.style.display = 'initial';
+  }
 }
