@@ -7,14 +7,7 @@ import * as bodyParser from 'body-parser';
 
 import { Participant } from './common/Participant';
 
-const PARTICIPANTS: Participant[] = [
-  {
-    penUrl: 'https://codepen.io/gerkirill/pen/xQqjQw?editors=1010',
-    fullpageUrl: 'https://s.codepen.io/gerkirill/fullpage/xQqjQw',
-    name: 'Кирилл',
-    changeCount: 0
-  }
-];
+const PARTICIPANTS: Participant[] = [];
 
 const app = express();
 app.use(express.static(__dirname + '/www/dist'));

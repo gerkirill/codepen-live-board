@@ -9,7 +9,7 @@
     "server": "ts-node-dev server.ts",
     "web:watch": "parcel watch www/src/index.html --out-dir www/dist",
     "build": "run-s clean web:build",
-    "web:build":"parcel build www/src/index.html --out-dir www/dist",
+    "web:build": "parcel build www/src/index.html --out-dir www/dist",
     "clean": "rimraf www/dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
