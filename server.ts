@@ -57,12 +57,20 @@ app.post('/register', async (req, res) => {
   var fullpageUrl = req.body.penUrl.replace('codepen.io', 's.codepen.io');
   fullpageUrl = fullpageUrl.replace('\/pen\/', '/fullpage/');
 
-  // todo: validate
+  //todo: validate
   if (fullpageUrl.indexOf('gerkirill') !== -1) {
     return res.status(500).json({ error: 'Сначала клонируй мой CodePen ;)' });
   }
   if (fullpageUrl.indexOf('https://s.codepen.io') !== 0) {
     return res.status(500).json({ error: 'C ссылкой на CodePen что-то не так' });
+  }
+  
+
+
+  const urlExists = PARTICIPANTS.find( el => el.penUrl === req.body.penUrl)  ;
+
+  if (typeof urlExists !== undefined) {
+    return res.status(500).json({ error: 'Такой код-пен уже есть на доске. Может, надо сначала форкнуть?' });
   }
 
   PARTICIPANTS.push({
